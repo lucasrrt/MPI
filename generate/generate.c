@@ -13,13 +13,12 @@ int main(int argc, char **argv){
 
 	for(int i=0;i<n;i++){
 		for(int j=0;j<n;j++){
-			buffer[i*n+j] = 1;//rand();
+			buffer[i*n+j] = 0;//rand();
 		}
 	}
 
-	FILE *file = fopen(argv[2],"w");
+	FILE *file = fopen(argv[2],"wb");
 	fwrite(&n,sizeof(int),1,file);
 	fwrite(buffer,sizeof(int),n*n,file);
-	fclose(file);
 	return 0;
 }
