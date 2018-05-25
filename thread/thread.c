@@ -66,7 +66,7 @@ int main(int argc, char **argv){
 	int thread_count = atoi(argv[2]);
 
 	int n;
-	FILE *file = fopen(argv[1],"rb");
+	FILE *file = fopen(argv[1],"r");
 	fread(&n,sizeof(int),1,file);
 
 	int *buffer = (int*)malloc(sizeof(int)*(n*n+1));
