@@ -84,7 +84,7 @@ int quadthread_sum_elements(int *buffer, int n){
 	p1->i2 = n/2;
 	p1->j1 = n/2;
 	p1->j2 = n;
-	p1->index = 0;
+	p1->index = 1;
 	pthread_create(&p1->tid, NULL, partial_compute, (void *)p1);
 
 	struct compute_params *p2 = malloc(sizeof(struct compute_params));
@@ -94,7 +94,7 @@ int quadthread_sum_elements(int *buffer, int n){
 	p2->i2 = n;
 	p2->j1 = 0;
 	p2->j2 = n/2;
-	p2->index = 0;
+	p2->index = 2;
 	pthread_create(&p2->tid, NULL, partial_compute, (void *)p2);
 
 	struct compute_params *p3 = malloc(sizeof(struct compute_params));
@@ -104,7 +104,7 @@ int quadthread_sum_elements(int *buffer, int n){
 	p3->i2 = n;
 	p3->j1 = n/2;
 	p3->j2 = n;
-	p3->index = 0;
+	p3->index = 3;
 	pthread_create(&p3->tid, NULL, partial_compute, (void *)p3);
 
 	long int *s0;
