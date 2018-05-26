@@ -7,9 +7,10 @@
 
 int monothread_sum_elements(int *buffer, int n){
 	long long unsigned int sum = 0;
-	for(int i=0;i<n;i++){
-		int diagonal = buffer[i*n+i];
-		for(int j=0;j<n;j++)
+	int i;
+	for(i=0;i<n;i++){
+		int j,diagonal = buffer[i*n+i];
+		for(j=0;j<n;j++)
 			sum+=buffer[i*n+j]*diagonal;
 	}
 	return sum;
@@ -28,9 +29,10 @@ void *partial_compute(void *args){
 	struct compute_params *params = (struct compute_params*) args;
 	partials[params->index] = 0;
 
-	for(int i=params->i1;i<params->i2;i++){
+	int i,j;
+	for(i=params->i1;i<params->i2;i++){
 		int diagonal = params->buffer[i*params->size+i];
-		for(int j=params->j1;j<params->j2;j++){
+		for(j=params->j1;j<params->j2;j++){
 			int cell = params->buffer[i*params->size+j]*diagonal;
 			partials[params->index]+=cell;
 		}
