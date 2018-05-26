@@ -10,12 +10,12 @@ cd ..
 
 echo "mpi"
 cd mpi
-cp ../generate/matriz .
+cp ../generate/matriz ./matrix
 sh mpi_maquinas.sh
 cd ..
 
 echo "mix"
 cd mix
-cp ../generate/matriz .
+cp ../generate/matriz ./matrix
 sh mix_maquinas.sh
 cd ..
