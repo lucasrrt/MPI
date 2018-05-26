@@ -1,5 +1,5 @@
 echo "compiling thread.c"
-cc ./thread.c -o thread
+cc ./thread.c -o thread -lpthread
 echo "1 thread"
 ./thread ../generate/matriz 1 > t1.out
 echo "2 threads"
