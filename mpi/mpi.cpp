@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
+#include <sys/time.h>
 
 using namespace std;
 
@@ -31,6 +32,11 @@ int main(int argc, char *argv[]) {
 	ifstream file("matrix");
 	file >> n;
 	int values_size = n*n/(proc_number-1); //this 1 is the master node
+
+
+	//Starting the timer
+	struct timeval stop, start;
+	gettimeofday(&start, NULL);
 
 	//This is the master node
 	if (world_rank == 0) {
@@ -131,8 +137,10 @@ int main(int argc, char *argv[]) {
 	//Using MPI_Reduce to sum the partial_sum of each node
 	MPI_Reduce(&partial_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
+	gettimeofday(&stop, NULL);
 	if(world_rank == 0){
 		cout << "Soma global: " << global_sum << endl;
+		cout << "Duração: " << stop.tv_usec - start.tv_usec << endl;
 	}
 
 	//Finalize the MPI environment
