@@ -5,10 +5,15 @@ cd ..
 
 echo "threads"
 cd thread
-sh thread/thread
+sh thread.sh
 cd ..
 
 echo "mpi"
 cd mpi
-sh mpi/mpi_maquinas.sh
+sh mpi_maquinas.sh
+cd ..
+
+echo "mix"
+cd mix
+sh mix_maquinas.sh
 cd ..

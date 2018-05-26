@@ -1,4 +1,4 @@
-mpic++ mpi.cpp -o compute;
+mpic++ mix.cpp -o compute;
 
 echo "mpi using 3 nodes"
 mpirun -np 3 compute

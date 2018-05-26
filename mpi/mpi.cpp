@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
 		//Sending the diagonal of the matrix
 		int *superior_diagonal = new int[n/2];
 		int *inferior_diagonal = new int[n/2];
-		for(int i = 0; i < n; i++){
+		int i = 0;
+		for(i = 0; i < n; i++){
 			if (i < n/2)
 				superior_diagonal[i] = buffer[n*i+i];
 			else
@@ -83,8 +84,9 @@ int main(int argc, char *argv[]) {
 			int *values_to_send3 = new int[values_size];
 			int *values_to_send4 = new int[values_size];
 
-			for (int i = 0; i < n/2; i++){
-				for (int j = 0; j < n/2; j++){
+			int i, j;
+			for (i = 0; i < n/2; i++){
+				for (j = 0; j < n/2; j++){
 					values_to_send1[n*i/2+j] = buffer[i*n/2 + j];
 					values_to_send2[n*i/2+j] = buffer[i*n/2 + j+n/2];
 					values_to_send3[n*i/2+j] = buffer[(i+n/2)*n/2 + j];
@@ -107,8 +109,9 @@ int main(int argc, char *argv[]) {
 		//Calculating the partial_sum
 		int new_values[values_size];
 		int columns_number = n/((proc_number-1)/2);
-		for(int i = 0; i < n/2; i++)
-			for(int j = 0; j < columns_number; j++){
+		int i,j;
+		for(i = 0; i < n/2; i++)
+			for(j = 0; j < columns_number; j++){
 				new_values[i*columns_number + j] = received_values[i*columns_number + j] * received_diagonal[i];
 				partial_sum += new_values[i*columns_number+j];
 			}
