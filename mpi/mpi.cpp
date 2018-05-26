@@ -34,9 +34,9 @@ int main(int argc, char *argv[]) {
 
 	int values_size = n*n/(proc_number-1); //this 1 is the master node
 
-	//Starting the timer
+	//variables for the time
 	struct timeval stop, start;
-	gettimeofday(&start, NULL);
+	double start_seconds, stop_seconds;
 
 	//This is the master node
 	if (world_rank == 0) {
@@ -46,6 +46,10 @@ int main(int argc, char *argv[]) {
 		//reading the matrix from the file
 		int *buffer = (int*)malloc(sizeof(int)*(n*n+1));
 		fread(buffer,sizeof(int),n*n,file);
+	
+		//Starting the time after reading the file
+		gettimeofday(&start, NULL);
+		start_seconds = start.tv_sec + start.tv_usec*1e-6;
 
 		//Sending the diagonal of the matrix
 		int *superior_diagonal = new int[n/2];
@@ -121,9 +125,11 @@ int main(int argc, char *argv[]) {
 	MPI_Reduce(&partial_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	gettimeofday(&stop, NULL);
+	double stop_seconds = stop.tv_sec + stop.tv_usec*1e-6;
+
 	if(world_rank == 0){
 		cout << "Soma global: " << global_sum << endl;
-		cout << "Duração: " << stop.tv_usec - start.tv_usec << endl;
+		cout << "Duração: " << stop_seconds - start_seconds << endl;
 	}
 
 	//Finalize the MPI environment
