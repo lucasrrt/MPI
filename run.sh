@@ -3,4 +3,4 @@ sh generate/generate.sh
 echo "threads"
 sh thread/thread
 echo "mpi"
-sh mpi/mpi.sh
+sh mpi/mpi_maquinas.sh
