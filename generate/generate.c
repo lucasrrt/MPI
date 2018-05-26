@@ -11,8 +11,9 @@ int main(int argc, char **argv){
 	int* buffer = (int*)malloc(sizeof(int)*n*n);
 	srand(time(NULL));
 
-	for(int i=0;i<n;i++){
-		for(int j=0;j<n;j++){
+	int i, j;
+	for(i=0;i<n;i++){
+		for(j=0;j<n;j++){
 			buffer[i*n+j] = 1;
 		}
 	}
