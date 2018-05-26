@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
 	int proc_number, world_rank;
 
-	int partial_sum, global_sum;
+	long long unsigned int partial_sum, global_sum;
 	partial_sum = global_sum = 0;
 
 	//Initialize the MPI environment
@@ -29,8 +29,9 @@ int main(int argc, char *argv[]) {
 
 	//Reading size of  matrix from file
 	int n;
-	ifstream file("matrix");
-	file >> n;
+	FILE *file = fopen("matrix","rb");
+	fread(&n,sizeof(int),1,file);
+
 	int values_size = n*n/(proc_number-1); //this 1 is the master node
 
 	//Starting the timer
@@ -42,24 +43,18 @@ int main(int argc, char *argv[]) {
 		cout << "Size of matrix is " << n << "x" << n << endl;
 
 		//allocating memory for the matrix
-		int **buffer = new int*[n];
-		for (int i = 0; i < n; i++)
-			buffer[i] = new int[n];
 		//reading the matrix from the file
-		for (int i = 0; i < n; i++){
-			for (int j = 0; j < n; j++){
-				file >> buffer[i][j];
-			}
-		}
+		int *buffer = (int*)malloc(sizeof(int)*(n*n+1));
+		fread(buffer,sizeof(int),n*n,file);
 
 		//Sending the diagonal of the matrix
 		int *superior_diagonal = new int[n/2];
 		int *inferior_diagonal = new int[n/2];
 		for(int i = 0; i < n; i++){
 			if (i < n/2)
-				superior_diagonal[i] = buffer[i][i];
+				superior_diagonal[i] = buffer[n*i+i];
 			else
-				inferior_diagonal[i - n/2] = buffer[i][i];
+				inferior_diagonal[i - n/2] = buffer[n*i+i];
 		}
 
 		if(proc_number == 3){
@@ -77,15 +72,8 @@ int main(int argc, char *argv[]) {
 
 		//Splitting and sending each part of the matrix
 		if(proc_number == 3){
-			int *values_to_send1 = new int[values_size];
-			int *values_to_send2 = new int[values_size];
-
-			for (int i = 0; i < n/2; i++){
-				for (int j = 0; j < n; j++){
-					values_to_send1[n*i+j] = buffer[i][j];
-					values_to_send2[n*i+j] = buffer[i+n/2][j];
-				}
-			}
+			int *values_to_send1 = buffer;
+			int *values_to_send2 = buffer + values_size;
 
 			MPI_Send(values_to_send1, values_size, MPI_INT, 1, 0, MPI_COMM_WORLD);
 			MPI_Send(values_to_send2, values_size, MPI_INT, 2, 0, MPI_COMM_WORLD);
@@ -97,10 +85,10 @@ int main(int argc, char *argv[]) {
 
 			for (int i = 0; i < n/2; i++){
 				for (int j = 0; j < n/2; j++){
-					values_to_send1[n*i/2+j] = buffer[i][j];
-					values_to_send2[n*i/2+j] = buffer[i][j+n/2];
-					values_to_send3[n*i/2+j] = buffer[i+n/2][j];
-					values_to_send4[n*i/2+j] = buffer[i+n/2][j+n/2];
+					values_to_send1[n*i/2+j] = buffer[i*n/2 + j];
+					values_to_send2[n*i/2+j] = buffer[i*n/2 + j+n/2];
+					values_to_send3[n*i/2+j] = buffer[(i+n/2)*n/2 + j];
+					values_to_send4[n*i/2+j] = buffer[(i+n/2)*n/2 + j+n/2];
 				}
 			}
 
