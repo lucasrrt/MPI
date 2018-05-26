@@ -6,7 +6,7 @@
 #define MAX 32
 
 int monothread_sum_elements(int *buffer, int n){
-	long int sum = 0;
+	long long unsigned int sum = 0;
 	for(int i=0;i<n;i++){
 		int diagonal = buffer[i*n+i];
 		for(int j=0;j<n;j++)
@@ -19,10 +19,10 @@ struct compute_params{
 	int *buffer, size;
 	int index;
 	int i1,i2,j1,j2;
-	long int *result;
+	long long unsigned int *result;
 	pthread_t tid;
 };
-long int partials[MAX];
+long long unsigned int partials[MAX];
 
 void *partial_compute(void *args){
 	struct compute_params *params = (struct compute_params*) args;
@@ -60,8 +60,8 @@ int dualthread_sum_elements(int *buffer, int n){
 	p1->j2 = n;
 	pthread_create(&p1->tid, NULL, partial_compute, (void *)p1);
 
-	long int *s0;
-	long int *s1;
+	long long unsigned int *s0;
+	long long unsigned int *s1;
 	pthread_join(p0->tid,(void **) &s0);
 	pthread_join(p1->tid,(void **) &s1);
 
@@ -109,10 +109,10 @@ int quadthread_sum_elements(int *buffer, int n){
 	p3->index = 3;
 	pthread_create(&p3->tid, NULL, partial_compute, (void *)p3);
 
-	long int *s0;
-	long int *s1;
-	long int *s2;
-	long int *s3;
+	long long unsigned int *s0;
+	long long unsigned int *s1;
+	long long unsigned int *s2;
+	long long unsigned int *s3;
 	pthread_join(p0->tid,(void **) &s0);
 	pthread_join(p1->tid,(void **) &s1);
 	pthread_join(p2->tid,(void **) &s2);
@@ -136,7 +136,7 @@ int main(int argc, char **argv){
 	int *buffer = (int*)malloc(sizeof(int)*(n*n+1));
 	fread(buffer,sizeof(int),n*n,file);
 
-	long int sum;
+	long long unsigned int sum;
 	struct timeval stop, start;
 	gettimeofday(&start, NULL);
 	switch(thread_count){
@@ -153,6 +153,6 @@ int main(int argc, char **argv){
 	gettimeofday(&stop, NULL);
 
 	printf("duration: %lu\n", stop.tv_usec - start.tv_usec);
-	printf("sum: %ld\n",sum);
+	printf("sum: %llu\n",sum);
 	return 0;
 }
