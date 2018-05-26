@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<pthread.h>
+#include<sys/time.h>
+
 #define MAX 32
 
 int monothread_sum_elements(int *buffer, int n){
@@ -135,6 +137,8 @@ int main(int argc, char **argv){
 	fread(buffer,sizeof(int),n*n,file);
 
 	long int sum;
+	struct timeval stop, start;
+	gettimeofday(&start, NULL);
 	switch(thread_count){
 		case 1:
 			sum = monothread_sum_elements(buffer,n);
@@ -146,7 +150,9 @@ int main(int argc, char **argv){
 			sum = quadthread_sum_elements(buffer,n);
 			break;
 	}
+	gettimeofday(&stop, NULL);
 
-	printf("%ld",sum);
+	printf("duration: %lu\n", stop.tv_usec - start.tv_usec);
+	printf("sum: %ld\n",sum);
 	return 0;
 }

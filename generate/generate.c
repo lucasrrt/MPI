@@ -13,7 +13,7 @@ int main(int argc, char **argv){
 
 	for(int i=0;i<n;i++){
 		for(int j=0;j<n;j++){
-			buffer[i*n+j] = 1;//rand();
+			buffer[i*n+j] = rand();
 		}
 	}
 
