@@ -4,3 +4,5 @@ echo "threads"
 sh thread/thread
 echo "mpi"
 sh mpi/mpi_maquinas.sh
+echo "mix"
+sh mix/mix_maquinas.sh
