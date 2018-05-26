@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	int proc_number, world_rank;
-	
+
 	int partial_sum, global_sum;
 	partial_sum = global_sum = 0;
 
@@ -33,7 +33,6 @@ int main(int argc, char *argv[]) {
 	file >> n;
 	int values_size = n*n/(proc_number-1); //this 1 is the master node
 
-
 	//Starting the timer
 	struct timeval stop, start;
 	gettimeofday(&start, NULL);
@@ -41,7 +40,7 @@ int main(int argc, char *argv[]) {
 	//This is the master node
 	if (world_rank == 0) {
 		cout << "Size of matrix is " << n << "x" << n << endl;
-	
+
 		//allocating memory for the matrix
 		int **buffer = new int*[n];
 		for (int i = 0; i < n; i++)
@@ -76,11 +75,7 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 
-		//spliting the matrix to send values
-		//the values to send will be a vector which the 
-		//first value is the size of matrix, and the other
-		//values will be the respective values
-
+		//Splitting and sending each part of the matrix
 		if(proc_number == 3){
 			int *values_to_send1 = new int[values_size];
 			int *values_to_send2 = new int[values_size];
@@ -113,17 +108,15 @@ int main(int argc, char *argv[]) {
 			MPI_Send(values_to_send2, values_size, MPI_INT, 2, 0, MPI_COMM_WORLD);
 			MPI_Send(values_to_send3, values_size, MPI_INT, 3, 0, MPI_COMM_WORLD);
 			MPI_Send(values_to_send4, values_size, MPI_INT, 4, 0, MPI_COMM_WORLD);
-
 		}
-
-	} else {
+	} else { //These are the others nodes
 		int received_diagonal[n/2];
 		MPI_Recv(received_diagonal, n/2, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
 		int received_values[values_size];
 		MPI_Recv(received_values, values_size, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-		//Calculating values to retrieve to master node
+		//Calculating the partial_sum
 		int new_values[values_size];
 		int columns_number = n/((proc_number-1)/2);
 		for(int i = 0; i < n/2; i++)
@@ -131,9 +124,8 @@ int main(int argc, char *argv[]) {
 				new_values[i*columns_number + j] = received_values[i*columns_number + j] * received_diagonal[i];
 				partial_sum += new_values[i*columns_number+j];
 			}
-
 	}
-	
+
 	//Using MPI_Reduce to sum the partial_sum of each node
 	MPI_Reduce(&partial_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
