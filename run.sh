@@ -1,8 +1,21 @@
 echo "generate matrix"
-sh generate/generate.sh
+cd generate
+sh generate.sh
+cd ..
+
 echo "threads"
-sh thread/thread
+cd thread
+sh thread.sh
+cd ..
+
 echo "mpi"
-sh mpi/mpi_maquinas.sh
+cd mpi
+cp ../generate/matriz .
+sh mpi_maquinas.sh
+cd ..
+
 echo "mix"
-sh mix/mix_maquinas.sh
+cd mix
+cp ../generate/matriz .
+sh mix_maquinas.sh
+cd ..
