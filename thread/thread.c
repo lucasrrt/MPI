@@ -153,6 +153,6 @@ int main(int argc, char **argv){
 	gettimeofday(&stop, NULL);
 
 	printf("duration: %lu\n", stop.tv_usec - start.tv_usec);
-	printf("sum: %ld\n",sum);
+	printf("sum: %llu\n",sum);
 	return 0;
 }
