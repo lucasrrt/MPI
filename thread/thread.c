@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<pthread.h>
+#define MAX 32
 
 int monothread_sum_elements(int *buffer, int n){
 	long int sum = 0;
@@ -14,47 +15,108 @@ int monothread_sum_elements(int *buffer, int n){
 
 struct compute_params{
 	int *buffer, size;
-	int upper;
+	int index;
+	int i1,i2,j1,j2;
 	long int *result;
 	pthread_t tid;
 };
+long int partials[MAX];
 
-void *half_compute(void *args){
+void *partial_compute(void *args){
 	struct compute_params *params = (struct compute_params*) args;
-	params->result = 0;
+	partials[params->index] = 0;
 
-	for(int i=params->upper*params->size/2;i<params->upper*params->size;i++){
+	for(int i=params->i1;i<params->i2;i++){
 		int diagonal = params->buffer[i*params->size+i];
-		for(int j=0;j<params->size;j++)
-			params->result+=params->buffer[i*params->size+j]*diagonal;
+		for(int j=params->j1;j<params->j2;j++){
+			int cell = params->buffer[i*params->size+j]*diagonal;
+			partials[params->index]+=cell;
+		}
 	}
 
-	pthread_exit(NULL);
-
+	pthread_exit(partials+params->index);
 }
 
 int dualthread_sum_elements(int *buffer, int n){
-	struct compute_params *upper_params;
-	upper_params->buffer = buffer;
-	upper_params->size = n;
-	upper_params->upper = 1;
-	pthread_create(&upper_params->tid, NULL, half_compute, (void *)upper_params);
+	struct compute_params *p0 = malloc(sizeof(struct compute_params));
+	p0->buffer = buffer;
+	p0->size = n;
+	p0->index = 0;
+	p0->i1 = 0;
+	p0->i2 = n/2;
+	p0->j1 = 0;
+	p0->j2 = n;
+	pthread_create(&p0->tid, NULL, partial_compute, (void *)p0);
 
-	struct compute_params *lower_params;
-	lower_params->buffer = buffer;
-	lower_params->size = n;
-	lower_params->upper = 0;
-	pthread_create(&lower_params->tid, NULL, half_compute, (void *)lower_params);
+	struct compute_params *p1 = malloc(sizeof(struct compute_params));
+	p1->buffer = buffer;
+	p1->size = n;
+	p1->index = 1;
+	p1->i1 = n/2;
+	p1->i2 = n;
+	p1->j1 = 0;
+	p1->j2 = n;
+	pthread_create(&p1->tid, NULL, partial_compute, (void *)p1);
 
-	pthread_join(upper_params->tid, NULL);
-	pthread_join(lower_params->tid, NULL);
+	long int *s0;
+	long int *s1;
+	pthread_join(p0->tid,(void **) &s0);
+	pthread_join(p1->tid,(void **) &s1);
 
-	return *upper_params->result + *lower_params->result;
+	return partials[0]+partials[1];
 }
 
 int quadthread_sum_elements(int *buffer, int n){
-	long int sum = 0;
-	return sum;
+	struct compute_params *p0 = malloc(sizeof(struct compute_params));
+	p0->buffer = buffer;
+	p0->size = n;
+	p0->i1 = 0;
+	p0->i2 = n/2;
+	p0->j1 = 0;
+	p0->j2 = n/2;
+	p0->index = 0;
+	pthread_create(&p0->tid, NULL, partial_compute, (void *)p0);
+
+	struct compute_params *p1 = malloc(sizeof(struct compute_params));
+	p1->buffer = buffer;
+	p1->size = n;
+	p1->i1 = 0;
+	p1->i2 = n/2;
+	p1->j1 = n/2;
+	p1->j2 = n;
+	p1->index = 1;
+	pthread_create(&p1->tid, NULL, partial_compute, (void *)p1);
+
+	struct compute_params *p2 = malloc(sizeof(struct compute_params));
+	p2->buffer = buffer;
+	p2->size = n;
+	p2->i1 = n/2;
+	p2->i2 = n;
+	p2->j1 = 0;
+	p2->j2 = n/2;
+	p2->index = 2;
+	pthread_create(&p2->tid, NULL, partial_compute, (void *)p2);
+
+	struct compute_params *p3 = malloc(sizeof(struct compute_params));
+	p3->buffer = buffer;
+	p3->size = n;
+	p3->i1 = n/2;
+	p3->i2 = n;
+	p3->j1 = n/2;
+	p3->j2 = n;
+	p3->index = 3;
+	pthread_create(&p3->tid, NULL, partial_compute, (void *)p3);
+
+	long int *s0;
+	long int *s1;
+	long int *s2;
+	long int *s3;
+	pthread_join(p0->tid,(void **) &s0);
+	pthread_join(p1->tid,(void **) &s1);
+	pthread_join(p2->tid,(void **) &s2);
+	pthread_join(p3->tid,(void **) &s3);
+
+	return partials[0]+partials[1]+partials[2]+partials[3];
 }
 
 int main(int argc, char **argv){
@@ -80,7 +142,7 @@ int main(int argc, char **argv){
 		case 2:
 			sum = dualthread_sum_elements(buffer,n);
 			break;
-		case 3:
+		case 4:
 			sum = quadthread_sum_elements(buffer,n);
 			break;
 	}
