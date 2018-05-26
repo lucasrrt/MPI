@@ -6,12 +6,6 @@
 
 using namespace std;
 
-void printArray(int size, int *array){
-	for(int i = 0; i < size; i++)
-		cout << array[i] << " ";
-	cout << endl;
-}
-
 int main(int argc, char *argv[]) {
 	int proc_number, world_rank;
 	
@@ -53,14 +47,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		cout << "Matrix:" << endl;
-		for (int i = 0; i < n; i++){
-			for (int j = 0; j < n; j++)
-				cout << buffer[i][j] << " ";
-			cout << endl;
-		}
-		cout << endl;
-
 		//Sending the diagonal of the matrix
 		int *superior_diagonal = new int[n/2];
 		int *inferior_diagonal = new int[n/2];
@@ -70,14 +56,6 @@ int main(int argc, char *argv[]) {
 			else
 				inferior_diagonal[i - n/2] = buffer[i][i];
 		}
-
-		cout << "Diagonais: " << endl << "Superior: ";
-		printArray(n/2, superior_diagonal);
-
-		cout << "Inferior: ";
-		printArray(n/2, inferior_diagonal);
-
-		cout << endl << endl;
 
 		if(proc_number == 3){
 			MPI_Send(superior_diagonal, n/2, MPI_INT, 1, 0, MPI_COMM_WORLD);
@@ -108,14 +86,6 @@ int main(int argc, char *argv[]) {
 				}
 			}
 
-			cout << endl << "valores para mandar para 1:" << endl;
-			printArray(values_size, values_to_send1);
-			cout << endl << endl;
-
-			cout << "valores para mandar para 2:" << endl; 
-			printArray(values_size, values_to_send2);
-			cout << endl << endl;
-
 			MPI_Send(values_to_send1, values_size, MPI_INT, 1, 0, MPI_COMM_WORLD);
 			MPI_Send(values_to_send2, values_size, MPI_INT, 2, 0, MPI_COMM_WORLD);
 		} else if (proc_number == 5){
@@ -133,22 +103,6 @@ int main(int argc, char *argv[]) {
 				}
 			}
 
-			cout << "valores para mandar para 1:" << endl;
-			printArray(values_size, values_to_send1);
-			cout << endl << endl;
-
-			cout << "valores para mandar para 2:" << endl; 
-			printArray(values_size, values_to_send2);
-			cout << endl << endl;
-			
-			cout << "valores para mandar para 3:" << endl; 
-			printArray(values_size, values_to_send3);
-			cout << endl << endl;
-			
-			cout << "valores para mandar para 4:" << endl; 
-			printArray(values_size, values_to_send4);
-			cout << endl << endl;
-
 			MPI_Send(values_to_send1, values_size, MPI_INT, 1, 0, MPI_COMM_WORLD);
 			MPI_Send(values_to_send2, values_size, MPI_INT, 2, 0, MPI_COMM_WORLD);
 			MPI_Send(values_to_send3, values_size, MPI_INT, 3, 0, MPI_COMM_WORLD);
@@ -159,15 +113,9 @@ int main(int argc, char *argv[]) {
 	} else {
 		int received_diagonal[n/2];
 		MPI_Recv(received_diagonal, n/2, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-		cout << "Diagonal recebida por " << world_rank << ": ";
-		printArray(n/2, received_diagonal);
 
 		int received_values[values_size];
 		MPI_Recv(received_values, values_size, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-		cout << "Valores recebidos por " << world_rank << ": ";
-		printArray(values_size, received_values);
-
-		cout << endl << endl;
 
 		//Calculating values to retrieve to master node
 		int new_values[values_size];
@@ -178,11 +126,6 @@ int main(int argc, char *argv[]) {
 				partial_sum += new_values[i*columns_number+j];
 			}
 
-		cout << "Novos valores a serem enviados por " << world_rank << ": ";
-		printArray(values_size, new_values);
-		cout << "Soma parcial de " << world_rank << ": " << partial_sum << endl;
-
-		cout << endl << endl;
 	}
 	
 	//Using MPI_Reduce to sum the partial_sum of each node
