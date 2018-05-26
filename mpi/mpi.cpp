@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 	MPI_Reduce(&partial_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	gettimeofday(&stop, NULL);
-	double stop_seconds = stop.tv_sec + stop.tv_usec*1e-6;
+	stop_seconds = stop.tv_sec + stop.tv_usec*1e-6;
 
 	if(world_rank == 0){
 		cout << "Soma global: " << global_sum << endl;
