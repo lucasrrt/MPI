@@ -141,6 +141,7 @@ int main(int argc, char **argv){
 	long long unsigned int sum;
 	struct timeval stop, start;
 	gettimeofday(&start, NULL);
+	double start_seconds = start.tv_sec + start.tv_usec*1e-6;
 	switch(thread_count){
 		case 1:
 			sum = monothread_sum_elements(buffer,n);
@@ -153,8 +154,9 @@ int main(int argc, char **argv){
 			break;
 	}
 	gettimeofday(&stop, NULL);
+	double stop_seconds = stop.tv_sec + stop.tv_usec*1e-6;
 
-	printf("duration: %lu\n", stop.tv_usec - start.tv_usec);
+	printf("duration: %f\n", stop_seconds - start_seconds);
 	printf("sum: %llu\n",sum);
 	return 0;
 }
