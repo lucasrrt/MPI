@@ -66,6 +66,7 @@ int dualthread_sum_elements(int *buffer, int n){
 
 int main(int argc, char *argv[]) {
 	int proc_number, world_rank;
+	int i,j;
 
 	long long unsigned int partial_sum, global_sum;
 	partial_sum = global_sum = 0;
@@ -85,31 +86,38 @@ int main(int argc, char *argv[]) {
 	MPI_Get_processor_name(processor_name, &name_len);
 	
 	//Reading size of  matrix from file
-	int n;
-	FILE *file = fopen("matrix","rb");
-	fread(&n,sizeof(int),1,file);
-	int values_size = n*n/(proc_number-1); //this 1 is the master node
+	int n = 16000;
+	int *buffer = (int*)malloc(sizeof(int)*(n*n));
+
+	long int values_size = n*n/(proc_number-1); //this 1 is the master node
+	int rows_number = n/2;
+	int columns_number = n/((proc_number-1)/2);
+
 
 	//Starting the timer
 	struct timeval stop, start;
-	gettimeofday(&start, NULL);
+	double start_seconds, stop_seconds;
 
 	//This is the master node
 	if (world_rank == 0) {
 		cout << "Size of matrix is " << n << "x" << n << endl;
 
 		//allocating memory for the matrix
-		int *buffer = (int*)malloc(sizeof(int)*(n*n+1));
-		fread(buffer,sizeof(int),n*n,file);
+		for(i=0; i < n; i++){
+			for(j=0; j < n; j++)
+				buffer[n*i+j] = 1;
+		}
 
-		//Splitting and sending each part of the matrix
-		int *values_to_send1 = buffer;
-		int *values_to_send2 = buffer+values_size;
+		gettimeofday(&start, NULL);
+		start_seconds = start.tv_sec + start.tv_usec*1e-6;
 
-		MPI_Send(values_to_send1, values_size, MPI_INT, 1, 0, MPI_COMM_WORLD);
-		MPI_Send(values_to_send2, values_size, MPI_INT, 2, 0, MPI_COMM_WORLD);
+		int number;
+		for(number=0; number<proc_number - 1; number++){
+			int x = ((number) % 2) * n*(n / 2);
+			MPI_Send(buffer+x, values_size, MPI_INT, number+1,0,MPI_COMM_WORLD);
+		}
 	} else { //These are the others nodes
-		int received_values[values_size];
+		int *received_values = new int[values_size];
 		MPI_Recv(received_values, values_size, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
 		partial_sum = dualthread_sum_elements(received_values,n);
@@ -119,9 +127,10 @@ int main(int argc, char *argv[]) {
 	MPI_Reduce(&partial_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	gettimeofday(&stop, NULL);
+	stop_seconds = stop.tv_sec + stop.tv_usec*1e-6;
 	if(world_rank == 0){
 		cout << "Soma global: " << global_sum << endl;
-		cout << "Duração: " << stop.tv_usec - start.tv_usec << endl;
+		cout << "Duração: " << stop_seconds - start_seconds << endl;
 	}
 
 	//Finalize the MPI environment
